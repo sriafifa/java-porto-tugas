@@ -1,357 +1,145 @@
-// ====================
-// INISIALISASI
-// ====================
+// ===== TOGGLE HAMBURGER MENU =====
+const hamburger = document.querySelector('.hamburger');
+const navMenu = document.querySelector('.nav-menu');
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Inisialisasi semua fungsi
-    initNavbar();
-    initScrollEffects();
-    initPortfolioFilter();
-    initContactForm();
-    initBackToTop();
-    initSkillAnimation();
-    initTypingEffect();
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    navMenu.classList.toggle('active');
 });
 
-// ====================
-// NAVBAR FUNCTIONALITY
-// ====================
-
-function initNavbar() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    // Toggle mobile menu
-    hamburger.addEventListener('click', function() {
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
+// Tutup menu ketika link diklik
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
     });
+});
+
+// ===== STICKY HEADER & ACTIVE NAV LINK =====
+const header = document.getElementById('header');
+const sections = document.querySelectorAll('section');
+const navLinks = document.querySelectorAll('.nav-link');
+
+window.addEventListener('scroll', () => {
+    // Sticky header effect
+    if (window.scrollY > 50) {
+        header.style.padding = '10px 0';
+        header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+    } else {
+        header.style.padding = '15px 0';
+        header.style.boxShadow = 'none';
+    }
     
-    // Close mobile menu when clicking a link
+    // Active nav link berdasarkan scroll
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (pageYOffset >= sectionTop - 200) {
+            current = section.getAttribute('id');
+        }
+    });
+
     navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
-            
-            // Update active link
-            navLinks.forEach(item => item.classList.remove('active'));
-            this.classList.add('active');
-        });
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+            link.classList.add('active');
+        }
     });
-    
-    // Update active link on scroll
-    window.addEventListener('scroll', function() {
-        const sections = document.querySelectorAll('section');
-        const scrollPos = window.scrollY + 100;
+});
+
+// ===== PORTFOLIO FILTER =====
+const filterBtns = document.querySelectorAll('.filter-btn');
+const portfolioItems = document.querySelectorAll('.portfolio-item');
+
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Hapus active dari semua btn
+        filterBtns.forEach(btn => btn.classList.remove('active'));
+        // Tambah active ke btn yang diklik
+        btn.classList.add('active');
         
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            const sectionId = section.getAttribute('id');
-            
-            if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${sectionId}`) {
-                        link.classList.add('active');
-                    }
-                });
+        const filterValue = btn.getAttribute('data-filter');
+        
+        portfolioItems.forEach(item => {
+            if (filterValue === 'all' || item.classList.contains(filterValue)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
             }
         });
     });
-}
+});
 
-// ====================
-// SCROLL EFFECTS
-// ====================
+// ===== BACK TO TOP BUTTON =====
+const backToTop = document.getElementById('backToTop');
 
-function initScrollEffects() {
-    const header = document.getElementById('header');
-    
-    // Sticky header on scroll
-    window.addEventListener('scroll', function() {
-        if (window.scrollY > 100) {
-            header.style.padding = '10px 0';
-            header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
-        } else {
-            header.style.padding = '20px 0';
-            header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-        }
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 500) {
+        backToTop.classList.add('show');
+    } else {
+        backToTop.classList.remove('show');
+    }
+});
+
+backToTop.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
     });
-}
+});
 
-// ====================
-// PORTFOLIO FILTER
-// ====================
-
-function initPortfolioFilter() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const portfolioItems = document.querySelectorAll('.portfolio-item');
-    
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            const filterValue = this.getAttribute('data-filter');
-            
-            // Filter portfolio items
-            portfolioItems.forEach(item => {
-                if (filterValue === 'all' || item.classList.contains(filterValue)) {
-                    item.style.display = 'block';
-                    setTimeout(() => {
-                        item.style.opacity = '1';
-                        item.style.transform = 'scale(1)';
-                    }, 10);
-                } else {
-                    item.style.opacity = '0';
-                    item.style.transform = 'scale(0.8)';
-                    setTimeout(() => {
-                        item.style.display = 'none';
-                    }, 300);
-                }
+// ===== SMOOTH SCROLL UNTUK SEMUA LINK =====
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
             });
-        });
-    });
-}
-
-// ====================
-// CONTACT FORM
-// ====================
-
-function initContactForm() {
-    const contactForm = document.getElementById('contactForm');
-    
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-            
-            // Simple validation
-            if (!name || !email || !message) {
-                showNotification('Harap isi semua field!', 'error');
-                return;
-            }
-            
-            // Simulate sending message
-            showNotification('Pesan berhasil dikirim! Saya akan membalas segera.', 'success');
-            
-            // Reset form
-            contactForm.reset();
-        });
-    }
-}
-
-// ====================
-// BACK TO TOP BUTTON
-// ====================
-
-function initBackToTop() {
-    const backToTopButton = document.getElementById('backToTop');
-    
-    window.addEventListener('scroll', function() {
-        if (window.scrollY > 300) {
-            backToTopButton.classList.add('show');
-        } else {
-            backToTopButton.classList.remove('show');
         }
     });
-    
-    backToTopButton.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+});
+
+// ===== FORM SUBMISSION (CONTOH) =====
+const contactForm = document.getElementById('contactForm');
+if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Di sini Anda bisa menambahkan logika pengiriman form (misal fetch API)
+        alert('Terima kasih! Pesan Anda telah terkirim.');
+        contactForm.reset();
     });
 }
 
-// ====================
-// SKILL ANIMATION
-// ====================
-
-function initSkillAnimation() {
-    const skillItems = document.querySelectorAll('.skill-item');
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const skillLevel = entry.target.querySelector('.level-progress');
-                const levelText = entry.target.querySelector('.level-text');
-                const width = skillLevel.style.width;
-                
-                // Reset width for animation
-                skillLevel.style.width = '0%';
-                
-                // Animate to full width
-                setTimeout(() => {
-                    skillLevel.style.width = width;
-                }, 300);
-                
-                // Animate percentage text
-                let percent = 0;
-                const targetPercent = parseInt(levelText.textContent);
-                const interval = setInterval(() => {
-                    if (percent >= targetPercent) {
-                        clearInterval(interval);
-                    } else {
-                        percent++;
-                        levelText.textContent = percent + '%';
-                    }
-                }, 15);
-                
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
-    
-    skillItems.forEach(item => observer.observe(item));
-}
-
-// ====================
-// TYPING EFFECT
-// ====================
-
-function initTypingEffect() {
-    const heroTitle = document.querySelector('.hero-title');
-    const originalText = heroTitle.innerHTML;
-    
-    // Only run if we have the highlight element
-    const highlightElement = heroTitle.querySelector('.highlight');
-    if (!highlightElement) return;
-    
-    const highlightText = highlightElement.textContent;
-    const beforeText = originalText.split(highlightText)[0];
-    const afterText = originalText.split(highlightText)[1];
-    
-    // Clear the title
-    heroTitle.innerHTML = '';
-    
-    // Add before text
-    heroTitle.innerHTML = beforeText;
-    
-    // Create span for typing effect
-    const typingSpan = document.createElement('span');
-    typingSpan.className = 'highlight typing';
-    heroTitle.appendChild(typingSpan);
-    
-    // Add after text
-    const afterSpan = document.createElement('span');
-    afterSpan.innerHTML = afterText;
-    heroTitle.appendChild(afterSpan);
-    
-    // Typing effect
-    let i = 0;
-    const typingSpeed = 100;
-    
-    function typeWriter() {
-        if (i < highlightText.length) {
-            typingSpan.textContent += highlightText.charAt(i);
-            i++;
-            setTimeout(typeWriter, typingSpeed);
+// ===== SCROLL REVEAL ANIMATION (OPSIONAL) =====
+// Menggunakan Intersection Observer untuk memunculkan elemen saat discroll
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('show');
         }
-    }
-    
-    // Start typing effect after a short delay
-    setTimeout(typeWriter, 500);
-}
-
-// ====================
-// NOTIFICATION SYSTEM
-// ====================
-
-function showNotification(message, type) {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <p>${message}</p>
-        <button class="notification-close">&times;</button>
-    `;
-    
-    // Add to body
-    document.body.appendChild(notification);
-    
-    // Show notification
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-    
-    // Close button functionality
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', function() {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
     });
-    
-    // Auto remove after 5 seconds
-    setTimeout(() => {
-        if (document.body.contains(notification)) {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }
-    }, 5000);
-}
+}, { threshold: 0.1 });
 
-// ====================
-// ADD STYLES FOR NOTIFICATION
-// ====================
+document.querySelectorAll('.skill-item, .portfolio-item, .info-item').forEach(el => {
+    el.classList.add('fade-in');
+    observer.observe(el);
+});
 
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-    .notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 5px;
-        color: white;
-        font-weight: 500;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        min-width: 300px;
-        max-width: 400px;
-        transform: translateX(150%);
-        transition: transform 0.3s ease;
+// Tambahkan CSS untuk fade-in
+const style = document.createElement('style');
+style.innerHTML = `
+    .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
     }
-    
-    .notification.show {
-        transform: translateX(0);
-    }
-    
-    .notification.success {
-        background-color: #2ecc71;
-    }
-    
-    .notification.error {
-        background-color: #e74c3c;
-    }
-    
-    .notification-close {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-        margin-left: 15px;
-        line-height: 1;
+    .fade-in.show {
+        opacity: 1;
+        transform: translateY(0);
     }
 `;
-
-document.head.appendChild(notificationStyles);
+document.head.appendChild(style);
